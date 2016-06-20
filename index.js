@@ -25,10 +25,19 @@ function startWatch(pattern){
       })
     })
     .on('all', (event, path)=>{
+      let p = path.split('/')
+      let filename = p[p.length - 1]
+      let f = filename.split('.')
+      let extension = f[f.length - 1]
+      
       sendEvent({
         name: 'watchFile',
         status: event,
-        result: {path: path},
+        result: {
+          path: path,
+          filename: filename,
+          extension: extension,
+        },
       })
     })
 }
