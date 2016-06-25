@@ -1,50 +1,51 @@
 import chokidar from 'chokidar'
 import rest from 'restler'
+import config from 'config'
 
-const url = process.env.SEND_URL
-function sendEvent(event){
-  if (url) {
-    rest.postJson(url, event)
-    .on('error', (err, res)=>{
-      console.log('error')
-      console.dir(res)
-      console.dir(err);
-    })
-  } else {
-    console.dir(event)
+console.dir(config)
+const event = config.event
+
+function dispatch(e){
+  console.log(`event: ${e.name} ${e.status} ${e.result.path}`)
+  const sender = event[e.name] && event[e.name][e.status]
+  if (sender && sender.url){
+    console.log(`dispatch: ${sender.url}`)
+    rest.postJson(sender.url, e)
+      .on('error', (err, res)=>{
+        console.log('dispatch: ERROR')
+        console.dir({err, res})
+      })
   }
 }
 
-function startWatch(pattern){
-  chokidar.watch(pattern, {ignored: /[\/\\]\./, persistent: true})
-    .on('error', err=>{
-      sendEvent({
-        name: 'watchFile',
+function cutTail(str, keyword){
+  const splited = str.split(keyword)
+  return splited[splited.length - 1]
+}
+
+function watch(name, watcher){
+  console.log(`監視します: ${name} ${watcher.path}`)
+  chokidar.watch(watcher.path, {ignored: /[\/\\]\./, persistent: true})
+    .on('error', (error)=>{
+      console.log('watch: ERROR')
+      console.dir(error)
+      dispatch({
+        name,
         status: 'error',
-        result: {error: err},
+        result: {error},
       })
     })
     .on('all', (event, path)=>{
-      let p = path.split('/')
-      let filename = p[p.length - 1]
-      let f = filename.split('.')
-      let extension = f[f.length - 1]
-      
-      sendEvent({
-        name: 'watchFile',
+      const filename = cutTail(path, '/')
+      const extension = cutTail(filename, '.')
+      dispatch({
+        name,
         status: event,
-        result: {
-          path: path,
-          filename: filename,
-          extension: extension,
-        },
+        result: {path, filename, extension},
       })
     })
 }
 
-const pattern = process.env.WATCH_PATTERN
-if (pattern){
-  startWatch(pattern)
-} else {
-  console.error('環境変数 WATCH_PATTERN が設定されていません')
+for (let name in event){
+  watch(name, event[name])
 }

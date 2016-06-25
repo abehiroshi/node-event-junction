@@ -1,0 +1,7 @@
+event:
+    movie_file:
+        path: MOVIE_ORIGIN_PATH
+        add:
+            url: MOVIE_DISPATCH_URL
+        unlink:
+            url: MOVIE_DISPATCH_URL
