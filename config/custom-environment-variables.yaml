@@ -1,7 +1,13 @@
 event:
     movie_file:
-        path: MOVIE_ORIGIN_PATH
+        path: MOVIE_PATH
         add:
-            url: MOVIE_DISPATCH_URL
+            url: DISPATCH_URL
         unlink:
-            url: MOVIE_DISPATCH_URL
+            url: DISPATCH_URL
+    command_file:
+        path: COMMAND_PATH
+        add:
+            exec: DISPATCH_EXEC
+        process_end:
+            url: DISPATCH_URL

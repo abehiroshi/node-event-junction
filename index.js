@@ -1,3 +1,5 @@
+import fs from 'fs'
+import {spawn} from 'child_process'
 import chokidar from 'chokidar'
 import rest from 'restler'
 import config from 'config'
@@ -12,8 +14,30 @@ function dispatch(e){
     console.log(`dispatch: ${sender.url}`)
     rest.postJson(sender.url, e)
       .on('error', (err, res)=>{
-        console.log('dispatch: ERROR')
+        console.log(`dispatch: ${sender.url} ERROR`)
         console.dir({err, res})
+      })
+  }
+  if (sender && sender.exec){
+    console.log(`dispatch: ${sender.exec} START`)
+    e.result.content = fs.readFileSync(e.result.path, 'utf8')
+    const args = [e.result.filename, e.result.content]
+    console.dir(args)
+    spawn(sender.exec, args, {
+      stdio: 'ignore'
+    })
+      .on('error', (error)=>{
+        console.log(`dispatch: ${sender.exec} ERROR`)
+        console.dir(error)
+      })
+      .on('close', (code)=>{
+        console.log(`dispatch: ${sender.exec} END(${code})`)
+        fs.unlinkSync(e.result.path)
+        dispatch({
+          name: e.name,
+          status: 'process_end',
+          result: e.result,
+        })
       })
   }
 }
@@ -37,11 +61,10 @@ function watch(name, watcher){
     })
     .on('all', (event, path)=>{
       const filename = cutTail(path, '/')
-      const extension = cutTail(filename, '.')
       dispatch({
         name,
         status: event,
-        result: {path, filename, extension},
+        result: {path, filename},
       })
     })
 }
