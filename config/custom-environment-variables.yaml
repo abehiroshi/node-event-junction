@@ -11,3 +11,5 @@ event:
             exec: DISPATCH_EXEC
         process_end:
             url: DISPATCH_URL
+        process_error:
+            url: DISPATCH_URL

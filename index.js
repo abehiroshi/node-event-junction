@@ -1,11 +1,12 @@
-import fs from 'fs'
-import {spawn} from 'child_process'
 import chokidar from 'chokidar'
 import rest from 'restler'
 import config from 'config'
+import exec_queue from './exec-queue'
 
 console.dir(config)
 const event = config.event
+
+const queue = exec_queue(1)
 
 function dispatch(e){
   console.log(`event: ${e.name} ${e.status} ${e.result.path}`)
@@ -19,26 +20,7 @@ function dispatch(e){
       })
   }
   if (sender && sender.exec){
-    console.log(`dispatch: ${sender.exec} START`)
-    e.result.content = fs.readFileSync(e.result.path, 'utf8')
-    const args = [e.result.filename, e.result.content]
-    console.dir(args)
-    spawn(sender.exec, args, {
-      stdio: 'ignore'
-    })
-      .on('error', (error)=>{
-        console.log(`dispatch: ${sender.exec} ERROR`)
-        console.dir(error)
-      })
-      .on('close', (code)=>{
-        console.log(`dispatch: ${sender.exec} END(${code})`)
-        fs.unlinkSync(e.result.path)
-        dispatch({
-          name: e.name,
-          status: 'process_end',
-          result: e.result,
-        })
-      })
+    queue.push({event: e, exec: sender.exec, dispatch})
   }
 }
 
@@ -55,7 +37,7 @@ function watch(name, watcher){
       console.dir(error)
       dispatch({
         name,
-        status: 'error',
+        status: 'watch_error',
         result: {error},
       })
     })
