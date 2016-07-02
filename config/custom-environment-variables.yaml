@@ -3,3 +3,6 @@ env:
     command_path: COMMAND_PATH
     dispatch_url: DISPATCH_URL
     dispatch_exec: DISPATCH_EXEC
+    handbrake_workdir: HANDBRAKE_WORKDIR
+    handbrake_outdir: HANDBRAKE_OUTDIR
+    handbrake_enddir: HANDBRAKE_ENDDIR

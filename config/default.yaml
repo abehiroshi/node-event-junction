@@ -3,6 +3,9 @@ env:
     command_path: ./command
     dispatch_url: http://devnull-as-a-service.com/dev/null
     dispatch_exec: echo
+    handbrake_workdir: ./work
+    handbrake_outdir: ./out
+    handbrake_enddir: ./out
 event:
     movie_file:
         path: movie_path
@@ -14,7 +17,27 @@ event:
         path: command_path
         add:
             handbrake:
-                type: mp4
+                workdir: handbrake_workdir
+                outdir: handbrake_outdir 
+                enddir: handbrake_enddir 
+                extension: .mp4
+                options:
+                    large-file: true
+                    optimize: true
+                    e: x264
+                    x: b-adapt=2:rc-lookahead=50
+                    q: 22
+                    two-pass: true
+                    turbo: true
+                    vfr: true
+                    a: 1
+                    E: faac
+                    B: 160
+                    mixdown: stereo
+                    R: Auto
+                    crop: 0:0:0:0
+                    strict-anamorphic: true
+                    decomb: true
         process_end:
             url: dispatch_url
         process_error:

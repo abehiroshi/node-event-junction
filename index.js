@@ -10,11 +10,15 @@ const event = config.event
 const queue = exec_queue()
 const encode = handbrake()
 
+function env(key){
+  return config.env[key] || key
+}
+
 function dispatch(e){
   console.log(`event: ${e.name} ${e.status} ${e.result.path}`)
   const sender = event[e.name] && event[e.name][e.status]
   if (sender && sender.url){
-    const url = config.env[sender.url] || sender.url
+    const url = env(sender.url)
     console.log(`dispatch: ${url}`)
     rest.postJson(url, e)
       .on('error', (err, res)=>{
@@ -23,11 +27,14 @@ function dispatch(e){
       })
   }
   if (sender && sender.exec){
-    const exec = config.env[sender.exec] || sender.exec
+    const exec = env(sender.exec)
     queue.push({event: e, exec, dispatch})
   }
   if (sender && sender.handbrake){
-    encode.push({event: e, options: sender.handbrake, dispatch})
+    sender.handbrake.workdir = env(sender.handbrake.workdir)
+    sender.handbrake.outdir = env(sender.handbrake.outdir)
+    sender.handbrake.enddir = env(sender.handbrake.enddir)
+    encode.push({event: e, args: sender.handbrake, dispatch})
   }
 }
 
