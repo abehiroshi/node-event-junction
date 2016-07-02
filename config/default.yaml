@@ -26,17 +26,17 @@ event:
                 options:
                     large-file: true
                     optimize: true
-                    e: x264
-                    x: b-adapt=2:rc-lookahead=50
-                    q: 22
+                    encoder: x264
+                    encopts: b-adapt=2:rc-lookahead=50
+                    quality: 22
                     two-pass: true
                     turbo: true
                     vfr: true
-                    a: 1
-                    E: faac
-                    B: 160
+                    audio: 1
+                    aencoder: faac
+                    ab: 160
                     mixdown: stereo
-                    R: Auto
+                    arate: Auto
                     crop: 0:0:0:0
                     strict-anamorphic: true
                     decomb: true

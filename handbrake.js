@@ -6,8 +6,8 @@ import handbrake from 'handbrake-js'
 function process(options){
   return new Promise((resolve, reject)=>{
     handbrake.spawn(options)
-      .on('error', (error)=> resolve('process_error', error))
-      .on('complete', () => resolve('process_end'))
+      .on('error', (error)=> resolve({status: 'process_error', error}))
+      .on('complete', () => resolve({status: 'process_end'}))
   })
 }
 
@@ -28,7 +28,7 @@ export default function(concurrency=1){
       
       return new Promise((resolve)=>fs.rename(filepath, args.options.input, resolve))
         .then(()=>process(args.options))
-        .then((status, error)=> new Promise((resolve, reject)=>{
+        .then(({status, error})=> new Promise((resolve, reject)=>{
           fs.unlink(event.result.path, resolve)
           
           if (error){
