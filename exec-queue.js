@@ -2,6 +2,14 @@ import fs from 'fs'
 import {spawn} from 'child_process'
 import Queue, {QueueConsumer} from 'blocking-queue'
 
+function process(exec, args, options){
+  return new Promise((resolve, reject)=>{
+    spawn(exec, args, options)
+      .on('error', (error)=> resolve('process_error', error))
+      .on('close', (code) => resolve('process_end'))
+  })
+}
+
 export default function(concurrency=1){
     // コマンド実行を直列処理する
     const queue = new Queue()
@@ -11,27 +19,12 @@ export default function(concurrency=1){
       const args = [event.result.filename, event.result.content]
       console.dir(args)
       
-      return new Promise((resolve, reject)=>{
-        spawn(exec, args, { stdio: 'ignore' })
-          .on('error', (error)=>{
-            fs.unlinkSync(event.result.path)
-            resolve()
-            dispatch({
-              name: event.name,
-              status: 'process_error',
-              result: {error},
-            })
-          })
-          .on('close', (code)=>{
-            fs.unlinkSync(event.result.path)
-            resolve()
-            dispatch({
-              name: event.name,
-              status: 'process_end',
-              result: event.result,
-            })
-          })
-      })
+      return process(exec, args, { stdio: 'ignore' })
+        .then((status, error)=> new Promise((resolve, reject)=>{
+          if (error) event.result.error = error
+          dispatch({name: event.name, status, result: event.result})
+          fs.unlink(event.result.path, resolve)
+        }))
     }, concurrency)
     return queue
 }
