@@ -25,6 +25,7 @@ export default function(concurrency=1){
       
       args.options.input = path.join(args.workdir, infilename)
       args.options.output = path.join(args.workdir, outfilename)
+      event.result.options = args.options
       
       return new Promise((resolve)=>fs.rename(filepath, args.options.input, resolve))
         .then(()=>process(args.options))
