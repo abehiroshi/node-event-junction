@@ -1,15 +1,5 @@
-event:
-    movie_file:
-        path: MOVIE_PATH
-        add:
-            url: DISPATCH_URL
-        unlink:
-            url: DISPATCH_URL
-    command_file:
-        path: COMMAND_PATH
-        add:
-            exec: DISPATCH_EXEC
-        process_end:
-            url: DISPATCH_URL
-        process_error:
-            url: DISPATCH_URL
+env:
+    movie_path: MOVIE_PATH
+    command_path: COMMAND_PATH
+    dispatch_url: DISPATCH_URL
+    dispatch_exec: DISPATCH_EXEC

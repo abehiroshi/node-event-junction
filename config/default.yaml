@@ -1,0 +1,21 @@
+env:
+    movie_path: ./movie
+    command_path: ./command
+    dispatch_url: http://devnull-as-a-service.com/dev/null
+    dispatch_exec: echo
+event:
+    movie_file:
+        path: movie_path
+        add:
+            url: dispatch_url
+        unlink:
+            url: dispatch_url
+    command_file:
+        path: command_path
+        add:
+            handbrake:
+                type: mp4
+        process_end:
+            url: dispatch_url
+        process_error:
+            url: dispatch_url
