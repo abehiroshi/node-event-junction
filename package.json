@@ -24,6 +24,7 @@
     "blocking-queue": "0.0.1",
     "chokidar": "^1.5.2",
     "config": "^1.21.0",
+    "handbrake-js": "^2.0.10",
     "js-yaml": "^3.6.1",
     "restler": "^3.4.0"
   }
