@@ -8,13 +8,15 @@ env:
     handbrake_enddir: ./out
 event:
     movie_file:
-        path: movie_path
+        root: movie_path
+        pattern: "**/*"
         add:
             url: dispatch_url
         unlink:
             url: dispatch_url
     command_file:
-        path: command_path
+        root: command_path
+        pattern: "*"
         add:
             handbrake:
                 workdir: handbrake_workdir

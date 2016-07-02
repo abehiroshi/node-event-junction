@@ -1,3 +1,4 @@
+import path from 'path'
 import chokidar from 'chokidar'
 import rest from 'restler'
 import config from 'config'
@@ -38,14 +39,12 @@ function dispatch(e){
   }
 }
 
-function cutTail(str, keyword){
-  const splited = str.split(keyword)
-  return splited[splited.length - 1]
-}
-
 function watch(name, watcher){
-  const watchpath = config.env[watcher.path] || watcher.path
+  const watchroot = env(watcher.root)
+  const watchpattern = env(watcher.pattern)
+  const watchpath = path.join(watchroot, watchpattern)
   console.log(`監視します: ${name} ${watchpath}`)
+  
   chokidar.watch(watchpath, {ignored: /[\/\\]\./, persistent: true})
     .on('error', (error)=>{
       console.log('watch: ERROR')
@@ -53,15 +52,16 @@ function watch(name, watcher){
       dispatch({
         name,
         status: 'watch_error',
-        result: {error},
+        result: {error, root: watchroot},
       })
     })
-    .on('all', (event, path)=>{
-      const filename = cutTail(path, '/')
+    .on('all', (event, filepath)=>{
+      const filename = path.basename(filepath)
+      const dir = path.dirname(filepath).slice(watchroot.length - 1)
       dispatch({
         name,
         status: event,
-        result: {path, filename},
+        result: {path: filepath, filename, dir, root: watchroot},
       })
     })
 }
