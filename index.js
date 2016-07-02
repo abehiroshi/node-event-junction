@@ -57,7 +57,7 @@ function watch(name, watcher){
     })
     .on('all', (event, filepath)=>{
       const filename = path.basename(filepath)
-      const dir = path.dirname(filepath).slice(watchroot.length - 1)
+      const dir = path.dirname(filepath).slice(watchroot.length)
       dispatch({
         name,
         status: event,
