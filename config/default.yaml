@@ -18,6 +18,7 @@ event:
         root: command_path
         pattern: "*"
         add:
+            content_type: json
             handbrake:
                 workdir: handbrake_workdir
                 outdir: handbrake_outdir 

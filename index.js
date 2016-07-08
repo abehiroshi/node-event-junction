@@ -1,3 +1,4 @@
+import fs from 'fs'
 import path from 'path'
 import chokidar from 'chokidar'
 import rest from 'restler'
@@ -6,7 +7,6 @@ import exec_queue from './exec-queue'
 import handbrake from './handbrake'
 
 console.dir(config)
-const event = config.event
 
 const queue = exec_queue()
 const encode = handbrake()
@@ -17,8 +17,18 @@ function env(key){
 
 function dispatch(e){
   console.log(`event: ${e.name} ${e.status} ${e.result.path}`)
-  const sender = event[e.name] && event[e.name][e.status]
-  if (sender && sender.url){
+  let sender = config.event[e.name] && config.event[e.name][e.status]
+  if (sender === undefined){
+    console.log(`  dispatcher '${e.name}.${e.status}' is not found.`)
+    return
+  }
+  sender = JSON.parse(JSON.stringify(sender))
+
+  if (sender.content_type === 'json'){
+    e.result.content = JSON.parse(fs.readFileSync(e.result.path, 'utf8'))
+  }
+
+  if (sender.url){
     const url = env(sender.url)
     console.log(`dispatch: ${url}`)
     rest.postJson(url, e)
@@ -27,11 +37,11 @@ function dispatch(e){
         console.dir({err, res})
       })
   }
-  if (sender && sender.exec){
+  if (sender.exec){
     const exec = env(sender.exec)
     queue.push({event: e, exec, dispatch})
   }
-  if (sender && sender.handbrake){
+  if (sender.handbrake){
     sender.handbrake.workdir = env(sender.handbrake.workdir)
     sender.handbrake.outdir = env(sender.handbrake.outdir)
     sender.handbrake.enddir = env(sender.handbrake.enddir)
@@ -66,6 +76,6 @@ function watch(name, watcher){
     })
 }
 
-for (let name in event){
-  watch(name, event[name])
+for (let name in config.event){
+  watch(name, config.event[name])
 }
