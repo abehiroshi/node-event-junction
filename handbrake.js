@@ -3,14 +3,6 @@ import path from 'path'
 import Queue, {QueueConsumer} from 'blocking-queue'
 import handbrake from 'handbrake-js'
 
-function process(options){
-  return new Promise((resolve, reject)=>{
-    handbrake.spawn(options)
-      .on('error', (err)=> resolve({status: 'process_error', err}))
-      .on('complete', () => resolve({status: 'process_end'}))
-  })
-}
-
 export default function(concurrency=1){
     // コマンド実行を直列処理する
     const queue = new Queue()
@@ -26,7 +18,11 @@ export default function(concurrency=1){
       event.result.options = args.options
       
       return new Promise((resolve)=>fs.rename(filepath, args.options.input, resolve))
-        .then(()=>process(args.options))
+        .then(()=> new Promise((resolve)=>{
+          handbrake.spawn(args.options)
+            .on('error', (err)=> resolve({status: 'process_error', err}))
+            .on('complete', () => resolve({status: 'process_end'}))
+        }))
         .then(({status, err})=> new Promise((resolve, reject)=>{
           fs.unlink(event.result.path, resolve)
           
@@ -40,6 +36,7 @@ export default function(concurrency=1){
           }
           dispatch({name: event.name, status, result: event.result})
         }))
+        .catch((reason)=> console.log(`ERROR: handbrake ${reason}`))
     }, concurrency)
     return queue
 }
