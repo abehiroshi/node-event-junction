@@ -19,6 +19,7 @@ export default function(concurrency=1){
       
       return new Promise((resolve)=>fs.rename(filepath, args.options.input, resolve))
         .then(()=> new Promise((resolve)=>{
+          dispatch({name: event.name, status: 'process_start', result: event.result})
           handbrake.spawn(args.options)
             .on('error', (err)=> resolve({status: 'process_error', err}))
             .on('complete', () => resolve({status: 'process_end'}))
