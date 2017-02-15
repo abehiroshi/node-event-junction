@@ -6,13 +6,13 @@ import config from 'config'
 import exec_queue from './exec-queue'
 import handbrake from './handbrake'
 
-console.dir(config)
 
 const queue = exec_queue()
 const encode = handbrake()
 
+let _env = config.env
 function env(key){
-  return config.env[key] || key
+  return _env[key] || key
 }
 
 function dispatch(e){
@@ -76,6 +76,25 @@ function watch(name, watcher){
     })
 }
 
-for (let name in config.event){
-  watch(name, config.event[name])
+function start(event) {
+  console.log('START')
+  console.dir({env: _env, event: event})
+  for (let name in event){
+    watch(name, event[name])
+  }
 }
+
+if (process.argv[2]) {
+  rest.get(process.argv[2])
+    .on('success', (data)=>{
+      _env = Object.assign(config.env, data.env || {})
+      start(Object.assign(config.event, data.event || {}))
+    })
+    .on('error', (err)=>{
+      console.log(`ERROR config: ${process.argv[2]}`)
+      console.dir(err)
+    })
+} else {
+  start(config.event)
+}
+
