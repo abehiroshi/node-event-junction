@@ -16,7 +16,7 @@ function env(key){
 }
 
 function dispatch(e){
-  console.log(`event: ${e.name} ${e.status} ${e.result.path}`)
+  console.log(`event: ${e.name} ${e.status} ${e.result.path || ''}`)
   let sender = config.event[e.name] && config.event[e.name][e.status]
   if (sender === undefined){
     console.log(`  dispatcher '${e.name}.${e.status}' is not found.`)
