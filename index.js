@@ -88,7 +88,7 @@ function start(event) {
   }
 }
 
-amazon.auth(process.argv.get(3), process.argv.get(4))
+amazon.auth(process.argv[3], process.argv[4])
 
 if (process.argv[2]) {
   rest.get(process.argv[2])
