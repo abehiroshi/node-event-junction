@@ -22,7 +22,7 @@ new QueueConsumer(queue).start(({event, args, dispatch})=>{
     .type("input[name='password']", auth_info.password)
     .click("form[name='signIn'] input#signInSubmit")
     .wait("input[name='placeYourOrder1']").wait(3000)
-    .screenshot(path.join(args.result_path, asin))
+    .screenshot(path.join(args.result_path, asin + '.png'))
     .end()
     .then(()=>{
       console.log(`Amazon order completed. [${asin}]`)
