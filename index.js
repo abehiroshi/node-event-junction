@@ -5,7 +5,7 @@ import rest from 'restler'
 import config from 'config'
 import exec_queue from './exec-queue'
 import handbrake from './handbrake'
-
+import amazon from './amazon'
 
 const queue = exec_queue()
 const encode = handbrake()
@@ -37,6 +37,9 @@ function dispatch(e){
         console.dir({err, res})
       })
   }
+  if (sender.method === 'amazon'){
+     amazon.order({event: e, args: sender.args, dispatch})
+  }
   if (sender.exec){
     const exec = env(sender.exec)
     queue.push({event: e, exec, dispatch})
@@ -66,12 +69,13 @@ function watch(name, watcher){
       })
     })
     .on('all', (event, filepath)=>{
+      const base = path.basename(filepath, path.ext(filepath))
       const filename = path.basename(filepath)
       const dir = path.dirname(filepath).slice(watchroot.length)
       dispatch({
         name,
         status: event,
-        result: {path: filepath, filename, dir, root: watchroot},
+        result: {path: filepath, base, filename, dir, root: watchroot},
       })
     })
 }
@@ -83,6 +87,8 @@ function start(event) {
     watch(name, event[name])
   }
 }
+
+amazon.auth(process.argv.get(3), process.argv.get(4))
 
 if (process.argv[2]) {
   rest.get(process.argv[2])
