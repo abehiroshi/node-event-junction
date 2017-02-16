@@ -16,7 +16,7 @@ event:
             url: dispatch_url
     command_file:
         root: command_path
-        pattern: "*"
+        pattern: "handbrake/*"
         add:
             content_type: json
             handbrake:
