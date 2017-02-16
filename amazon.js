@@ -1,3 +1,4 @@
+import fs from 'fs'
 import path from 'path'
 import Nightmare from 'nightmare'
 import Queue, {QueueConsumer} from 'blocking-queue'
@@ -6,6 +7,8 @@ const queue = new Queue()
 const auth_info = {email: '', password: ''}
 
 new QueueConsumer(queue).start(({event, args, dispatch})=>{
+  console.log(`dispatch: amazon order`)
+  fs.unlink(event.result.path)
   const asin = event.result.base
   Nightmare({ show: false })
     .viewport(1200, 800)
