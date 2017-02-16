@@ -69,7 +69,7 @@ function watch(name, watcher){
       })
     })
     .on('all', (event, filepath)=>{
-      const base = path.basename(filepath, path.ext(filepath))
+      const base = path.basename(filepath, path.extname(filepath))
       const filename = path.basename(filepath)
       const dir = path.dirname(filepath).slice(watchroot.length)
       dispatch({
