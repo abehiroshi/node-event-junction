@@ -26,6 +26,7 @@
     "config": "^1.21.0",
     "handbrake-js": "^2.0.10",
     "js-yaml": "^3.6.1",
+    "nightmare": "^2.9.1",
     "restler": "^3.4.0"
   }
 }
