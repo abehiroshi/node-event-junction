@@ -63,6 +63,7 @@ function watch(name, watcher){
       console.log('watch: ERROR')
       console.dir(error)
       dispatch({
+        method: 'app',
         name,
         status: 'watch_error',
         result: {error, root: watchroot},
@@ -73,6 +74,7 @@ function watch(name, watcher){
       const filename = path.basename(filepath)
       const dir = path.dirname(filepath).slice(watchroot.length)
       dispatch({
+        method: 'app',
         name,
         status: event,
         result: {path: filepath, base, filename, dir, root: watchroot},

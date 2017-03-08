@@ -29,11 +29,11 @@ new QueueConsumer(queue).start(({event, args, dispatch})=>{
     .end()
     .then(()=>{
       console.log(`Amazon order completed. [${asin}]`)
-      dispatch({name: event.name, status: "complete", result: {asin}})
+      dispatch({method: 'app', name: event.name, status: "complete", result: {asin}})
     })
     .catch(err=>{
       console.error(`Amazon order failed. [${asin}]:`, err)
-      dispatch({name: event.name, status: "error", result: {asin, err, from: event.result}})
+      dispatch({method: 'app', name: event.name, status: "error", result: {asin, err, from: event.result}})
     })
 }, 1)
 
